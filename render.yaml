@@ -3,7 +3,7 @@
 #       在 Render 选 "New + → Blueprint"，指向该仓库即可。
 services:
   - type: web
-    name: agenskill-sink          # 部署后域名形如 https://agenskill-sink.onrender.com
+    name: yangbackup              # 部署后域名形如 https://yangbackup.onrender.com
     runtime: python
     plan: free                    # 免费档够用（注意：闲置会休眠 + 文件系统重启即清，见 README）
     buildCommand: pip install -r requirements.txt
