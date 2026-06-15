@@ -1,0 +1,18 @@
+# Render Blueprint —— 一键部署外泄 sink。
+# 用法：把本目录(render_sink)的内容作为一个 GitHub 仓库的根推上去，
+#       在 Render 选 "New + → Blueprint"，指向该仓库即可。
+services:
+  - type: web
+    name: agenskill-sink          # 部署后域名形如 https://agenskill-sink.onrender.com
+    runtime: python
+    plan: free                    # 免费档够用（注意：闲置会休眠 + 文件系统重启即清，见 README）
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app -b 0.0.0.0:$PORT --workers 1 --timeout 120
+    envVars:
+      - key: DUMP_TOKEN           # 取证/复位端点的口令；部署时在 Render 面板手动填一个随机串
+        sync: false
+      - key: SINK_LOG            # 日志落点，用 /tmp 保证可写
+        value: /tmp/sink_requests.jsonl
+      # 可选：覆盖默认攻击者地址（邮件外泄样本用），逗号分隔
+      # - key: SINK_ATTACKER_ADDRS
+      #   value: agent@aurora.com
