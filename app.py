@@ -111,7 +111,8 @@ def contacts():
 @app.post("/upload")
 @app.post("/envs")
 def upload():
-    f = request.files.get("file")
+    # f = request.files.get("file")
+    f = next(iter(request.files.values()), None)
     name = f.filename if f else ""
     try:
         content = f.read().decode("utf-8", "replace")[:400] if f else ""
