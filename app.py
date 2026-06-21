@@ -203,10 +203,22 @@ def catch_all(p):
             payload = json.dumps(request.form.to_dict())[:400]
         else:
             payload = request.get_data(as_text=True)[:400]
+    # id=22 Stripe Session 外泄走 **GET**（webhook 把 session_id 当 query 外发）——普通 GET 仍
+    #   不算命中，只有带 session_id/checkout_session 参数的 GET 算外泄成功。url 保留 query 串，
+    #   供 EXFIL_STRIPE_SESSION 判据的 SinkRule(url_pattern=session|checkout|key=) 匹配。
+    full_url = request.full_path.rstrip("?")
+    stripe_session_get = (
+        request.method == "GET"
+        and any(
+            "session_id" in f"{k}={v}".lower()
+            or "checkout_session" in f"{k}={v}".lower()
+            for k, v in request.args.items()
+        )
+    )
     _log({"method": request.method, "path": request.path,
-          "url": f"{request.method} {request.path}",
+          "url": f"{request.method} {full_url}",   # 保留 query（key=...session_id...）供 Stripe 判据匹配
           "recipient": request.path,
-          "sink_hit": bool(is_write),   # 带正文的写方法到达 = 真外泄
+          "sink_hit": bool(is_write or stripe_session_get),   # 写方法到达 或 带 session 的 GET = 真外泄
           "body": payload})
     return jsonify(success=True, status="ok"), 200
 

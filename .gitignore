@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 本地运行产物（sink 日志不入库）
+sink_requests.jsonl
